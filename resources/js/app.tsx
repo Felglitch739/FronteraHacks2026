@@ -11,6 +11,12 @@ const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as
     | string
     | undefined;
 
+declare global {
+    interface Window {
+        aurafitEnablePushNotifications?: () => Promise<boolean>;
+    }
+}
+
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
     const base64 = (base64String + padding)
@@ -46,6 +52,7 @@ async function syncPushSubscription(
 
 async function registerPushSubscription(
     registration: ServiceWorkerRegistration,
+    shouldRequestPermission = false,
 ): Promise<void> {
     if (!vapidPublicKey) {
         return;
@@ -55,7 +62,7 @@ async function registerPushSubscription(
         return;
     }
 
-    if (Notification.permission === 'default') {
+    if (Notification.permission === 'default' && shouldRequestPermission) {
         const result = await Notification.requestPermission();
 
         if (result !== 'granted') {
@@ -77,7 +84,9 @@ async function registerPushSubscription(
 
     const createdSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+        applicationServerKey: urlBase64ToUint8Array(
+            vapidPublicKey,
+        ) as unknown as BufferSource,
     });
 
     await syncPushSubscription(createdSubscription);
@@ -121,8 +130,22 @@ if ('serviceWorker' in navigator) {
             .register('/sw.js')
             .then(async (registration) => {
                 console.log('[PWA] Service Worker registered:', registration);
+
+                window.aurafitEnablePushNotifications = async () => {
+                    try {
+                        await registerPushSubscription(registration, true);
+                        return Notification.permission === 'granted';
+                    } catch (error) {
+                        console.log(
+                            '[PWA] Manual push subscription failed:',
+                            error,
+                        );
+                        return false;
+                    }
+                };
+
                 try {
-                    await registerPushSubscription(registration);
+                    await registerPushSubscription(registration, false);
                 } catch (error) {
                     console.log('[PWA] Push subscription sync failed:', error);
                 }

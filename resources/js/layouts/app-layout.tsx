@@ -2,6 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import {
     Activity,
     BarChart3,
+    Bell,
     MessageCircle,
     PieChart,
     LayoutDashboard,
@@ -10,6 +11,7 @@ import {
     Utensils,
     Zap,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import type { BreadcrumbItem } from '@/types';
 
@@ -21,6 +23,33 @@ export default function AppLayout({
     children: React.ReactNode;
 }) {
     const { isCurrentUrl } = useCurrentUrl();
+    const [notificationsEnabled, setNotificationsEnabled] =
+        useState<boolean>(false);
+    const [notificationsLoading, setNotificationsLoading] =
+        useState<boolean>(false);
+
+    useEffect(() => {
+        if (typeof window === 'undefined' || !('Notification' in window)) {
+            return;
+        }
+
+        setNotificationsEnabled(Notification.permission === 'granted');
+    }, []);
+
+    const handleEnableNotifications = async (): Promise<void> => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        setNotificationsLoading(true);
+
+        try {
+            const enabled = await window.aurafitEnablePushNotifications?.();
+            setNotificationsEnabled(Boolean(enabled));
+        } finally {
+            setNotificationsLoading(false);
+        }
+    };
 
     const desktopPrimaryNavItems = [
         {
@@ -240,14 +269,32 @@ export default function AppLayout({
                             </div>
                         </div>
 
-                        <button
-                            type="button"
-                            onClick={() => router.post('/logout')}
-                            className="inline-flex items-center gap-2 rounded-lg border border-glass-border bg-background/40 px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:border-neon-pink hover:text-neon-pink"
-                        >
-                            <LogOut className="h-4 w-4" />
-                            Log out
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={handleEnableNotifications}
+                                disabled={
+                                    notificationsEnabled || notificationsLoading
+                                }
+                                className="inline-flex items-center gap-2 rounded-lg border border-glass-border bg-background/40 px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:border-neon-blue hover:text-neon-blue disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                <Bell className="h-4 w-4" />
+                                {notificationsEnabled
+                                    ? 'Alerts on'
+                                    : notificationsLoading
+                                      ? 'Enabling...'
+                                      : 'Enable alerts'}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => router.post('/logout')}
+                                className="inline-flex items-center gap-2 rounded-lg border border-glass-border bg-background/40 px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:border-neon-pink hover:text-neon-pink"
+                            >
+                                <LogOut className="h-4 w-4" />
+                                Log out
+                            </button>
+                        </div>
                     </header>
 
                     <main className="flex-1">{children}</main>
