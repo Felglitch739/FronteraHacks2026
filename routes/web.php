@@ -5,6 +5,7 @@ use App\Http\Controllers\DailyLogController;
 use App\Http\Controllers\MacroCounterController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PlanUpdateController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\WeeklyPlanController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
@@ -32,6 +33,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('chat/reply', [ChatController::class, 'reply'])->name('chat.reply');
     Route::post('api/coach/chat', [ChatController::class, 'reply'])->name('api.coach.chat');
     Route::post('api/plan/update', [PlanUpdateController::class, 'update'])->name('api.plan.update');
+    Route::post('push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push-subscriptions.store');
+    Route::delete('push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push-subscriptions.destroy');
 
     Route::get('macros', [MacroCounterController::class, 'index'])->name('macros.index');
     Route::post('macros/analyze', [MacroCounterController::class, 'analyze'])->name('macros.analyze');

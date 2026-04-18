@@ -153,18 +153,65 @@ self.addEventListener('fetch', (event) => {
 
 // Push notification support
 self.addEventListener('push', (event) => {
-    const options = {
-        body: event.data ? event.data.text() : 'Nueva notificación',
-        icon: '/android-icon-192x192.png',
-        badge: '/favicon-96x96.png',
-        vibrate: [100, 50, 100],
+    let payload = {
+        title: 'Aurafit',
+        body: 'New notification',
         data: {
             timestamp: Date.now(),
-            url: '/',
+            url: '/dashboard',
         },
     };
 
-    event.waitUntil(self.registration.showNotification('Aurafit', options));
+    if (event.data) {
+        try {
+            const parsed = event.data.json();
+            payload = {
+                title: parsed.title || payload.title,
+                body: parsed.body || payload.body,
+                data: {
+                    ...payload.data,
+                    ...(parsed.data || {}),
+                },
+            };
+        } catch (_) {
+            payload.body = event.data.text() || payload.body;
+        }
+    }
+
+    const options = {
+        body: payload.body,
+        icon: '/android-icon-192x192.png',
+        badge: '/favicon-96x96.png',
+        vibrate: [100, 50, 100],
+        data: payload.data,
+    };
+
+    event.waitUntil(self.registration.showNotification(payload.title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    const targetUrl = event.notification.data?.url || '/dashboard';
+
+    event.waitUntil(
+        clients
+            .matchAll({ type: 'window', includeUncontrolled: true })
+            .then((windowClients) => {
+                for (const client of windowClients) {
+                    if ('focus' in client) {
+                        client.navigate(targetUrl);
+                        return client.focus();
+                    }
+                }
+
+                if (clients.openWindow) {
+                    return clients.openWindow(targetUrl);
+                }
+
+                return undefined;
+            }),
+    );
 });
 
 // Background sync for offline actions
