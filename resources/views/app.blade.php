@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
     {{-- Inline script to detect system dark mode preference and apply it immediately --}}
     <script>
@@ -29,6 +29,11 @@
         html.dark {
             background-color: oklch(0.145 0 0);
         }
+
+        body {
+            min-height: 100dvh;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
     </style>
 
     <link rel="icon" href="/favicon.ico" sizes="any">
@@ -52,8 +57,9 @@
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/manifest.json">
-    <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#252531">
     <meta name="theme-color" content="#4B5563">
 
     {{-- PWA Meta Tags --}}
