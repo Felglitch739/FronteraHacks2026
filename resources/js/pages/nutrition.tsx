@@ -64,6 +64,11 @@ export default function NutritionPage({
                 icon: SunMedium,
             },
             {
+                label: 'Fats',
+                value: `${nutritionPlan.macroTargets.fatGrams}g`,
+                icon: ChefHat,
+            },
+            {
                 label: 'Hydration',
                 value: `${nutritionPlan.hydrationLiters}L`,
                 icon: Droplets,
@@ -177,7 +182,7 @@ export default function NutritionPage({
 
                 {nutritionPlan ? (
                     <>
-                        <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                        <section className="grid grid-cols-2 gap-4 md:grid-cols-5">
                             {summaryTiles.map((tile) => {
                                 const Icon = tile.icon;
 

@@ -323,6 +323,45 @@ export default function Dashboard({
                                     </div>
                                 </div>
 
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="rounded-xl border border-glass-border bg-background/40 p-4">
+                                        <p className="text-xs tracking-[0.22em] text-muted-foreground uppercase">
+                                            Protein
+                                        </p>
+                                        <p className="mt-2 text-xl font-bold text-foreground">
+                                            {
+                                                nutritionPlan.macroTargets
+                                                    .proteinGrams
+                                            }
+                                            g
+                                        </p>
+                                    </div>
+                                    <div className="rounded-xl border border-glass-border bg-background/40 p-4">
+                                        <p className="text-xs tracking-[0.22em] text-muted-foreground uppercase">
+                                            Carbs
+                                        </p>
+                                        <p className="mt-2 text-xl font-bold text-foreground">
+                                            {
+                                                nutritionPlan.macroTargets
+                                                    .carbsGrams
+                                            }
+                                            g
+                                        </p>
+                                    </div>
+                                    <div className="rounded-xl border border-glass-border bg-background/40 p-4">
+                                        <p className="text-xs tracking-[0.22em] text-muted-foreground uppercase">
+                                            Fats
+                                        </p>
+                                        <p className="mt-2 text-xl font-bold text-foreground">
+                                            {
+                                                nutritionPlan.macroTargets
+                                                    .fatGrams
+                                            }
+                                            g
+                                        </p>
+                                    </div>
+                                </div>
+
                                 <div className="rounded-xl border-l-4 border-green-500 bg-background/50 p-4">
                                     <p className="text-sm text-foreground italic">
                                         "{nutritionPlan.nutritionTip}"
