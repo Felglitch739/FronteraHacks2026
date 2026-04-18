@@ -6,6 +6,7 @@ import {
     CheckCircle2,
     Dumbbell,
     LayoutDashboard,
+    ShieldAlert,
     Sparkles,
     UserRound,
     Zap,
@@ -62,8 +63,8 @@ export default function Welcome({
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--color-neon-pink),transparent_30%),radial-gradient(circle_at_top_right,var(--color-neon-blue),transparent_26%),linear-gradient(180deg,var(--color-background)_0%,transparent_45%,var(--color-background)_100%)] opacity-20" />
                 <div className="absolute inset-0 bg-[linear-gradient(var(--color-foreground)_1px,transparent_1px)] bg-size-[56px_56px] opacity-[0.03]" />
 
-                <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-6 lg:px-10">
-                    <header className="glass-panel mb-8 flex items-center justify-between rounded-2xl border border-glass-border bg-glass-panel px-4 py-3 shadow-[0_0_40px_var(--color-neon-pink)/10] backdrop-blur-xl">
+                <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-4 sm:px-6 sm:py-6 lg:px-10">
+                    <header className="glass-panel mb-6 flex flex-col items-start gap-3 rounded-2xl border border-glass-border bg-glass-panel px-3 py-3 shadow-[0_0_40px_var(--color-neon-pink)/10] backdrop-blur-xl sm:mb-8 sm:flex-row sm:items-center sm:justify-between sm:px-4">
                         <div className="flex items-center gap-3">
                             <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-neon-pink/30 bg-linear-to-br from-neon-pink/25 via-neon-blue/15 to-background shadow-[0_0_24px_var(--color-neon-pink)/10]">
                                 <Zap className="h-5 w-5 text-neon-pink" />
@@ -78,11 +79,11 @@ export default function Welcome({
                             </div>
                         </div>
 
-                        <nav className="flex items-center gap-3 text-sm">
+                        <nav className="flex w-full flex-wrap items-center justify-end gap-2 text-sm sm:w-auto sm:gap-3">
                             {auth.user ? (
                                 <Link
                                     href={dashboard()}
-                                    className="inline-flex items-center gap-2 rounded-full border border-neon-blue/25 bg-neon-blue/10 px-4 py-2 font-semibold text-neon-blue/80 transition hover:border-neon-blue/50 hover:bg-neon-blue/15"
+                                    className="inline-flex items-center gap-2 rounded-full border border-neon-blue/25 bg-neon-blue/10 px-3 py-1.5 font-semibold text-neon-blue/80 transition hover:border-neon-blue/50 hover:bg-neon-blue/15 sm:px-4 sm:py-2"
                                 >
                                     <LayoutDashboard className="h-4 w-4" />
                                     Dashboard
@@ -91,14 +92,14 @@ export default function Welcome({
                                 <>
                                     <Link
                                         href={login()}
-                                        className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-4 py-2 font-semibold text-foreground transition hover:border-neon-pink/30 hover:bg-accent/50"
+                                        className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-3 py-1.5 font-semibold text-foreground transition hover:border-neon-pink/30 hover:bg-accent/50 sm:px-4 sm:py-2"
                                     >
                                         Log in
                                     </Link>
                                     {canRegister && (
                                         <Link
                                             href={register()}
-                                            className="inline-flex items-center gap-2 rounded-full border border-neon-pink/30 bg-linear-to-r from-neon-pink to-neon-blue px-4 py-2 font-semibold text-foreground shadow-[0_0_24px_var(--color-neon-pink)/10] transition hover:scale-[1.02]"
+                                            className="inline-flex items-center gap-2 rounded-full border border-neon-pink/30 bg-linear-to-r from-neon-pink to-neon-blue px-3 py-1.5 font-semibold text-foreground shadow-[0_0_24px_var(--color-neon-pink)/10] transition hover:scale-[1.02] sm:px-4 sm:py-2"
                                         >
                                             Create account
                                         </Link>
@@ -173,157 +174,266 @@ export default function Welcome({
                         </section>
 
                         <section className="relative">
-                            <div className="absolute -top-8 -left-8 h-28 w-28 rounded-full bg-neon-pink/20 blur-3xl" />
-                            <div className="absolute -right-6 bottom-6 h-32 w-32 rounded-full bg-neon-blue/20 blur-3xl" />
+                            <div className="absolute -top-10 -left-10 h-32 w-32 rounded-full bg-neon-pink/20 blur-3xl" />
+                            <div className="absolute -right-10 bottom-6 h-36 w-36 rounded-full bg-neon-blue/20 blur-3xl" />
 
-                            <div className="glass-panel relative overflow-hidden rounded-4xl border border-glass-border bg-glass-panel p-5 shadow-[0_0_40px_var(--color-neon-pink)/10] backdrop-blur-2xl">
+                            <div className="relative overflow-hidden rounded-3xl border border-gray-800 bg-gray-900/40 p-8 shadow-[0_0_50px_rgba(59,130,246,0.12)] backdrop-blur-xl">
                                 <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),transparent_30%,transparent_70%,rgba(255,255,255,0.04))]" />
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(59,130,246,0.12),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(239,68,68,0.14),transparent_34%)]" />
 
-                                <div className="relative flex items-center justify-between border-b border-border pb-4">
+                                <div className="relative z-10 flex items-center justify-between gap-4 border-b border-gray-800 pb-4">
                                     <div>
-                                        <p className="text-xs tracking-[0.32em] text-muted-foreground uppercase">
-                                            Energy snapshot
+                                        <p className="text-xs tracking-[0.32em] text-neon-blue/80 uppercase">
+                                            Recovery intelligence
                                         </p>
                                         <h2 className="mt-2 text-2xl font-semibold text-foreground">
-                                            Today's readiness
+                                            AI Recovery Heatmap
                                         </h2>
                                     </div>
-                                    <div className="rounded-2xl border border-neon-blue/20 bg-neon-blue/10 px-3 py-2 text-right">
-                                        <p className="text-xs tracking-[0.25em] text-neon-blue/80 uppercase">
-                                            Readiness
+                                    <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-right shadow-[0_0_24px_rgba(239,68,68,0.18)]">
+                                        <p className="text-xs tracking-[0.25em] text-red-300 uppercase">
+                                            Intervention
                                         </p>
-                                        <p className="text-2xl font-black text-neon-blue/80">
-                                            86%
+                                        <p className="text-2xl font-black text-red-400">
+                                            Critical
                                         </p>
                                     </div>
                                 </div>
 
-                                <div className="relative z-10 mt-5 grid gap-4 md:grid-cols-[0.92fr_1.08fr]">
-                                    <div className="rounded-[1.6rem] border border-border bg-background/60 p-5">
-                                        <div className="flex items-center gap-3">
-                                            <div className="relative flex h-28 w-28 items-center justify-center rounded-full bg-[conic-gradient(from_180deg,var(--color-neon-pink)_0%,var(--color-neon-blue)_72%,transparent_72%)] p-2 shadow-[0_0_30px_var(--color-neon-blue)/18]">
-                                                <div className="flex h-full w-full items-center justify-center rounded-full bg-background">
-                                                    <div className="text-center">
-                                                        <p className="font-['Orbitron',sans-serif] text-3xl font-black text-foreground">
-                                                            86
-                                                        </p>
-                                                        <p className="text-[10px] tracking-[0.3em] text-muted-foreground uppercase">
-                                                            score
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                <div className="relative z-10 mt-6 flex flex-col gap-6 lg:flex-row lg:items-center">
+                                    <div className="flex-1">
+                                        <svg
+                                            className="h-64 w-full max-w-xl drop-shadow-[0_0_28px_rgba(59,130,246,0.25)]"
+                                            viewBox="0 0 420 420"
+                                            fill="none"
+                                            aria-label="Human recovery heatmap"
+                                            role="img"
+                                        >
+                                            <defs>
+                                                <linearGradient
+                                                    id="torsoGlow"
+                                                    x1="0"
+                                                    x2="1"
+                                                    y1="0"
+                                                    y2="1"
+                                                >
+                                                    <stop
+                                                        offset="0%"
+                                                        stopColor="rgb(34 211 238)"
+                                                        stopOpacity="0.9"
+                                                    />
+                                                    <stop
+                                                        offset="100%"
+                                                        stopColor="rgb(59 130 246)"
+                                                        stopOpacity="0.75"
+                                                    />
+                                                </linearGradient>
+                                                <linearGradient
+                                                    id="legGlow"
+                                                    x1="0"
+                                                    x2="1"
+                                                    y1="0"
+                                                    y2="1"
+                                                >
+                                                    <stop
+                                                        offset="0%"
+                                                        stopColor="rgb(239 68 68)"
+                                                        stopOpacity="1"
+                                                    />
+                                                    <stop
+                                                        offset="100%"
+                                                        stopColor="rgb(127 29 29)"
+                                                        stopOpacity="0.9"
+                                                    />
+                                                </linearGradient>
+                                            </defs>
 
-                                            <div className="min-w-0">
-                                                <p className="text-sm font-semibold text-foreground">
-                                                    Steady rhythm
-                                                </p>
-                                                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                                                    You have room to push hard
-                                                    today, but the system will
-                                                    keep prioritizing your
-                                                    recovery if signals change.
-                                                </p>
-                                            </div>
-                                        </div>
+                                            <circle
+                                                cx="210"
+                                                cy="72"
+                                                r="34"
+                                                stroke="url(#torsoGlow)"
+                                                strokeWidth="8"
+                                                className="drop-shadow-[0_0_18px_rgba(59,130,246,0.5)]"
+                                            />
+                                            <path
+                                                d="M210 106V188"
+                                                stroke="url(#torsoGlow)"
+                                                strokeWidth="10"
+                                                strokeLinecap="round"
+                                                className="drop-shadow-[0_0_18px_rgba(59,130,246,0.5)]"
+                                            />
+                                            <path
+                                                d="M162 142L116 178"
+                                                stroke="url(#torsoGlow)"
+                                                strokeWidth="10"
+                                                strokeLinecap="round"
+                                                className="drop-shadow-[0_0_18px_rgba(59,130,246,0.5)]"
+                                            />
+                                            <path
+                                                d="M258 142L304 178"
+                                                stroke="url(#torsoGlow)"
+                                                strokeWidth="10"
+                                                strokeLinecap="round"
+                                                className="drop-shadow-[0_0_18px_rgba(59,130,246,0.5)]"
+                                            />
+                                            <path
+                                                d="M210 188L164 270"
+                                                stroke="url(#legGlow)"
+                                                strokeWidth="12"
+                                                strokeLinecap="round"
+                                                className="drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]"
+                                            />
+                                            <path
+                                                d="M210 188L256 270"
+                                                stroke="url(#legGlow)"
+                                                strokeWidth="12"
+                                                strokeLinecap="round"
+                                                className="drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]"
+                                            />
+                                            <path
+                                                d="M164 270L146 360"
+                                                stroke="url(#legGlow)"
+                                                strokeWidth="12"
+                                                strokeLinecap="round"
+                                                className="drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]"
+                                            />
+                                            <path
+                                                d="M256 270L274 360"
+                                                stroke="url(#legGlow)"
+                                                strokeWidth="12"
+                                                strokeLinecap="round"
+                                                className="drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]"
+                                            />
 
-                                        <div className="mt-5 grid gap-3 text-sm">
-                                            <div className="flex items-center justify-between rounded-2xl border border-border/50 bg-card/50 px-4 py-3">
-                                                <span className="flex items-center gap-2 text-muted-foreground">
-                                                    <BarChart3 className="h-4 w-4 text-neon-pink" />
-                                                    Weekly progress
-                                                </span>
-                                                <span className="font-semibold text-foreground">
-                                                    +12%
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center justify-between rounded-2xl border border-border/50 bg-card/50 px-4 py-3">
-                                                <span className="flex items-center gap-2 text-muted-foreground">
-                                                    <CheckCircle2 className="h-4 w-4 text-neon-blue/80" />
-                                                    Active check-in
-                                                </span>
-                                                <span className="font-semibold text-foreground">
-                                                    Ready
-                                                </span>
-                                            </div>
-                                        </div>
+                                            <path
+                                                d="M145 232H275"
+                                                stroke="rgb(239 68 68)"
+                                                strokeWidth="18"
+                                                strokeLinecap="round"
+                                                opacity="0.45"
+                                                className="drop-shadow-[0_0_18px_rgba(239,68,68,0.85)]"
+                                            />
+                                            <path
+                                                d="M138 306H284"
+                                                stroke="rgb(239 68 68)"
+                                                strokeWidth="16"
+                                                strokeLinecap="round"
+                                                opacity="0.38"
+                                                className="drop-shadow-[0_0_18px_rgba(239,68,68,0.85)]"
+                                            />
+
+                                            <circle
+                                                cx="164"
+                                                cy="270"
+                                                r="13"
+                                                fill="rgb(239 68 68)"
+                                                opacity="0.95"
+                                                className="drop-shadow-[0_0_20px_rgba(239,68,68,0.9)]"
+                                            />
+                                            <circle
+                                                cx="256"
+                                                cy="270"
+                                                r="13"
+                                                fill="rgb(239 68 68)"
+                                                opacity="0.95"
+                                                className="drop-shadow-[0_0_20px_rgba(239,68,68,0.9)]"
+                                            />
+                                            <circle
+                                                cx="146"
+                                                cy="360"
+                                                r="11"
+                                                fill="rgb(239 68 68)"
+                                                opacity="0.9"
+                                                className="drop-shadow-[0_0_20px_rgba(239,68,68,0.9)]"
+                                            />
+                                            <circle
+                                                cx="274"
+                                                cy="360"
+                                                r="11"
+                                                fill="rgb(239 68 68)"
+                                                opacity="0.9"
+                                                className="drop-shadow-[0_0_20px_rgba(239,68,68,0.9)]"
+                                            />
+
+                                            <text
+                                                x="52"
+                                                y="232"
+                                                fill="rgb(239 68 68)"
+                                                fontSize="16"
+                                                fontWeight="700"
+                                            >
+                                                Quads
+                                            </text>
+                                            <text
+                                                x="52"
+                                                y="312"
+                                                fill="rgb(239 68 68)"
+                                                fontSize="16"
+                                                fontWeight="700"
+                                            >
+                                                Hamstrings
+                                            </text>
+                                            <text
+                                                x="286"
+                                                y="232"
+                                                fill="rgb(239 68 68)"
+                                                fontSize="16"
+                                                fontWeight="700"
+                                            >
+                                                Fatigue spikes
+                                            </text>
+                                        </svg>
                                     </div>
 
-                                    <div className="space-y-4">
-                                        <div className="rounded-[1.6rem] border border-border bg-card/50 p-5">
-                                            <div className="flex items-center justify-between">
-                                                <p className="text-sm font-semibold text-foreground">
-                                                    Your flow today
-                                                </p>
-                                                <UserRound className="h-4 w-4 text-neon-pink" />
-                                            </div>
-                                            <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-                                                <div className="flex gap-3 rounded-2xl border border-border/50 bg-background/40 p-3">
-                                                    <span className="mt-0.5 h-2.5 w-2.5 rounded-full bg-neon-pink shadow-[0_0_10px_var(--color-neon-pink)/70]" />
-                                                    <div>
-                                                        <p className="font-medium text-foreground">
-                                                            1. Measure your
-                                                            state
-                                                        </p>
-                                                        <p className="text-muted-foreground">
-                                                            Sleep, fatigue and
-                                                            stress in a single
-                                                            check-in.
-                                                        </p>
-                                                    </div>
+                                    <div className="relative w-full max-w-sm lg:mb-20 lg:-ml-8">
+                                        <div className="rounded-xl border border-red-500/30 bg-gray-950/80 p-4 shadow-[0_0_28px_rgba(239,68,68,0.16)] backdrop-blur-md">
+                                            <div className="flex items-start gap-3">
+                                                <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-red-400 shadow-[0_0_18px_rgba(239,68,68,0.25)]">
+                                                    <ShieldAlert className="h-5 w-5" />
                                                 </div>
-                                                <div className="flex gap-3 rounded-2xl border border-border/50 bg-background/40 p-3">
-                                                    <span className="mt-0.5 h-2.5 w-2.5 rounded-full bg-neon-blue shadow-[0_0_10px_var(--color-neon-blue)/70]" />
-                                                    <div>
-                                                        <p className="font-medium text-foreground">
-                                                            2. Receive the
-                                                            adaptation
-                                                        </p>
-                                                        <p className="text-muted-foreground">
-                                                            The routine changes
-                                                            according to your
-                                                            real capacity of the
-                                                            day.
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex gap-3 rounded-2xl border border-border/50 bg-background/40 p-3">
-                                                    <span className="mt-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.7)]" />
-                                                    <div>
-                                                        <p className="font-medium text-foreground">
-                                                            3. Execute with calm
-                                                        </p>
-                                                        <p className="text-muted-foreground">
-                                                            Train hard when it's
-                                                            time, rest when it's
-                                                            convenient.
-                                                        </p>
-                                                    </div>
+                                                <div>
+                                                    <p className="text-xs tracking-[0.28em] text-red-300 uppercase">
+                                                        AuraFit AI: Intervention
+                                                    </p>
+                                                    <p className="mt-2 text-sm leading-6 text-gray-100/90">
+                                                        Severe fatigue detected
+                                                        in your quadriceps
+                                                        following yesterday's
+                                                        high-intensity session.
+                                                        To protect your
+                                                        recovery, your planned
+                                                        training for today has
+                                                        been automatically
+                                                        adapted to Upper Body /
+                                                        Active Recovery.
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="rounded-[1.4rem] border border-border bg-background/60 p-4">
-                                                <p className="text-xs tracking-[0.28em] text-muted-foreground uppercase">
-                                                    Focus
+                                        <div className="mt-4 grid gap-3 text-sm text-muted-foreground">
+                                            <div className="rounded-2xl border border-gray-800 bg-gray-950/70 p-4">
+                                                <p className="text-xs tracking-[0.25em] text-neon-blue/80 uppercase">
+                                                    AI action
                                                 </p>
-                                                <p className="mt-2 text-lg font-semibold text-foreground">
-                                                    Training
-                                                </p>
-                                                <p className="mt-1 text-sm text-muted-foreground">
-                                                    Strength + recovery
+                                                <p className="mt-2 text-foreground">
+                                                    Lower-body load is
+                                                    suppressed, while upper-body
+                                                    work and mobility remain
+                                                    active.
                                                 </p>
                                             </div>
-                                            <div className="rounded-[1.4rem] border border-border bg-background/60 p-4">
-                                                <p className="text-xs tracking-[0.28em] text-muted-foreground uppercase">
-                                                    Mode
+                                            <div className="rounded-2xl border border-gray-800 bg-gray-950/70 p-4">
+                                                <p className="text-xs tracking-[0.25em] text-red-300 uppercase">
+                                                    Recovery status
                                                 </p>
-                                                <p className="mt-2 text-lg font-semibold text-foreground">
-                                                    Guided AI
-                                                </p>
-                                                <p className="mt-1 text-sm text-muted-foreground">
-                                                    Empathetic & precise
+                                                <p className="mt-2 text-foreground">
+                                                    Quadriceps and hamstrings
+                                                    show critical accumulation.
+                                                    The system is steering you
+                                                    toward restoration, not
+                                                    intensity.
                                                 </p>
                                             </div>
                                         </div>

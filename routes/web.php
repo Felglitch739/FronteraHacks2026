@@ -8,12 +8,19 @@ use App\Http\Controllers\PlanUpdateController;
 use App\Http\Controllers\WeeklyPlanController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
+use Inertia\Inertia;
 
 use App\Http\Controllers\OnboardingController;
 
-Route::inertia('/', 'welcome', [
-    'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+
+    return Inertia::render('welcome', [
+        'canRegister' => Features::enabled(Features::registration()),
+    ]);
+})->name('home');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('onboarding', [OnboardingController::class, 'index'])->name('onboarding');
