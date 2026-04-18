@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aurafit-v1';
+const CACHE_NAME = 'aurafit-v2';
 const ASSETS_TO_CACHE = ['/', '/index.php', '/offline.html'];
 
 // Install event - cache assets
@@ -174,7 +174,21 @@ self.addEventListener('push', (event) => {
                 },
             };
         } catch (_) {
-            payload.body = event.data.text() || payload.body;
+            const textPayload = event.data.text() || '';
+
+            try {
+                const parsedText = JSON.parse(textPayload);
+                payload = {
+                    title: parsedText.title || payload.title,
+                    body: parsedText.body || payload.body,
+                    data: {
+                        ...payload.data,
+                        ...(parsedText.data || {}),
+                    },
+                };
+            } catch (__) {
+                payload.body = textPayload || payload.body;
+            }
         }
     }
 
