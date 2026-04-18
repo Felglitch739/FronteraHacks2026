@@ -17,7 +17,9 @@ class DailyLogRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'sleep_hours' => ['required', 'numeric', 'min:0', 'max:24'],
+            'stress_level' => ['required', 'integer', 'min:1', 'max:10'],
+            'soreness' => ['required', 'integer', 'min:1', 'max:10'],
         ];
     }
 }

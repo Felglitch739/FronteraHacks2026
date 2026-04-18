@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\DailyLogController;
+use App\Http\Controllers\WeeklyPlanController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
@@ -9,6 +11,13 @@ Route::inertia('/', 'welcome', [
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::inertia('nutrition', 'nutrition')->name('nutrition');
+
+    Route::resource('check-in', DailyLogController::class)
+        ->only(['index', 'store']);
+
+    Route::resource('weekly-plans', WeeklyPlanController::class)
+        ->only(['index', 'store', 'show']);
 });
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';

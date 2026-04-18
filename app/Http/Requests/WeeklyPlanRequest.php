@@ -17,7 +17,8 @@ class WeeklyPlanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'goal' => ['nullable', 'in:bulk,cut,maintain'],
+            'use_mock' => ['nullable', 'boolean'],
         ];
     }
 }
