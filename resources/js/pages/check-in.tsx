@@ -162,6 +162,26 @@ export default function CheckInPage({
         );
     }
 
+    if (reduceLoadForm.processing) {
+        return (
+            <>
+                <Head title="Check-in" />
+
+                <div className="space-y-6">
+                    <DailyLoading
+                        title="Rebuilding Lower-Load Plan"
+                        steps={[
+                            'Lowering session intensity and volume...',
+                            'Prioritizing recovery and technique work...',
+                            'Recalculating readiness-safe nutrition...',
+                            'Finalizing a recovery-first training flow...',
+                        ]}
+                    />
+                </div>
+            </>
+        );
+    }
+
     return (
         <>
             <Head title="Check-in" />

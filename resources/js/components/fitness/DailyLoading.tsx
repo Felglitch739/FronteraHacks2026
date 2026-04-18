@@ -8,18 +8,30 @@ const loadingSteps = [
     'Optimizing dynamic recovery flow...',
 ] as const;
 
-export default function DailyLoading() {
+type DailyLoadingProps = {
+    title?: string;
+    steps?: readonly string[];
+};
+
+export default function DailyLoading({
+    title = "Generating Today's Plan",
+    steps = loadingSteps,
+}: DailyLoadingProps) {
     const [stepIndex, setStepIndex] = useState(0);
 
     useEffect(() => {
+        if (steps.length === 0) {
+            return;
+        }
+
         const interval = window.setInterval(() => {
-            setStepIndex((prev) => (prev + 1) % loadingSteps.length);
+            setStepIndex((prev) => (prev + 1) % steps.length);
         }, 2500);
 
         return () => {
             window.clearInterval(interval);
         };
-    }, []);
+    }, [steps]);
 
     return (
         <section className="glass-panel animate-in rounded-2xl border border-glass-border bg-gray-950 p-8 duration-300 zoom-in-95 fade-in md:p-10">
@@ -35,13 +47,13 @@ export default function DailyLoading() {
                 </div>
 
                 <h2 className="font-['Orbitron',sans-serif] text-2xl font-bold text-foreground md:text-3xl">
-                    Generating Today&apos;s Plan
+                    {title}
                 </h2>
                 <p
                     key={stepIndex}
                     className="mt-4 max-w-2xl animate-in text-sm text-muted-foreground duration-300 fade-in slide-in-from-bottom-1 md:text-base"
                 >
-                    {loadingSteps[stepIndex]}
+                    {steps[stepIndex] ?? 'Preparing your plan...'}
                 </p>
             </div>
         </section>
