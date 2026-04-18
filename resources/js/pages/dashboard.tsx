@@ -234,7 +234,7 @@ export default function Dashboard({
                 <section className="glass-panel rounded-2xl p-6">
                     <h3 className="mb-4 flex items-center gap-2 text-xl font-semibold text-foreground">
                         <Dumbbell className="h-5 w-5 text-yellow-400" />
-                        Planned vs adjusted training
+                        Planned vs adjusted muscle focus
                     </h3>
 
                     {recommendation ? (

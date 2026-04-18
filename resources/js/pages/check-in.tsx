@@ -23,7 +23,7 @@ type CheckinResult = {
 type RecommendationState = {
     score: number;
     message: string;
-    routine: string[];
+    focusBlocks: string[];
 };
 
 type CheckInPageProps = {
@@ -51,12 +51,12 @@ export default function CheckInPage({
               message:
                   checkinResult.message ??
                   'Your check-in was saved successfully. Keep training with recovery in mind.',
-              routine: checkinResult.workout_json?.exercises?.map(
+              focusBlocks: checkinResult.workout_json?.exercises?.map(
                   (exercise) => exercise.name,
               ) ?? [
-                  'Mobility work (15 min)',
-                  'Technical session (30 min)',
-                  'Cool down and breathing (10 min)',
+                  'Push focus (chest, shoulders, triceps) with lower load',
+                  'Back and biceps activation with controlled tempo',
+                  'Core and mobility finish',
               ],
           }
         : null;
@@ -301,7 +301,7 @@ export default function CheckInPage({
                         </div>
 
                         <div className="mt-6 space-y-2">
-                            {(result?.routine ?? []).map((item) => (
+                            {(result?.focusBlocks ?? []).map((item) => (
                                 <div
                                     key={item}
                                     className="flex items-center gap-2 rounded-lg border border-glass-border bg-background/50 p-2 text-sm text-foreground"

@@ -6,13 +6,16 @@ use App\Models\DailyLog;
 use App\Models\Recommendation;
 use App\Models\User;
 use App\Services\Ai\OpenAiClientService;
+use App\Services\Ai\UserProfilePromptBuilder;
 use Carbon\Carbon;
 use Throwable;
 
 class DailyCheckinService
 {
-    public function __construct(private readonly OpenAiClientService $openAiClient)
-    {
+    public function __construct(
+        private readonly OpenAiClientService $openAiClient,
+        private readonly UserProfilePromptBuilder $profilePromptBuilder,
+    ) {
     }
 
     public function createDailyLog(array $payload): DailyLog
@@ -33,14 +36,14 @@ class DailyCheckinService
             'readiness_score' => $this->calculateReadinessScore($dailyLog),
             'message' => 'You are in a good spot to train today. Keep your effort controlled and focus on consistency.',
             'planned' => $plannedWorkout,
-            'adjusted' => 'Slightly reduced volume with extra mobility work',
+            'adjusted' => 'Slightly reduced load with controlled intensity and mobility work',
             'workout_json' => [
-                'title' => 'Smart Training Session',
-                'summary' => 'Prioritize quality reps and controlled tempo.',
+                'title' => 'Smart Muscle Focus',
+                'summary' => 'Focus on muscle groups and keep effort controlled.',
                 'exercises' => [
-                    ['name' => 'Goblet Squat', 'sets' => 3, 'reps' => '10'],
-                    ['name' => 'Push-Up', 'sets' => 3, 'reps' => '8-12'],
-                    ['name' => 'Band Row', 'sets' => 3, 'reps' => '12'],
+                    ['name' => 'Push day (chest, shoulders, triceps) with light to moderate load'],
+                    ['name' => 'Scapular and upper-back activation (back, rear delts)'],
+                    ['name' => 'Core stability and breathing reset'],
                 ],
             ],
             'nutrition_tip' => 'Add a balanced post-workout meal with protein and complex carbs.',
@@ -143,17 +146,23 @@ Return only valid JSON and use this exact shape:
 Rules:
 - readiness_score must be integer from 0 to 100.
 - Keep message short and empathetic.
-- Provide 3 to 5 exercises.
+- Provide 3 to 5 muscle-group focus blocks, not specific exercise names.
+- Adapt the recommendation to the user profile, current readiness drivers, and the planned workout.
+- Respect workout_mode: if custom, keep the user's training identity intact while adjusting intensity.
+- Use sports background and custom routine clues to make the output feel personal.
 PROMPT;
 
-        $userPrompt = sprintf(
-            'User goal: %s. Planned workout today: %s. Check-in: sleep_hours=%.1f, stress_level=%d, soreness=%d. Adapt safely.',
-            $user->goal ?? 'maintain',
-            $plannedWorkout,
-            (float) $dailyLog->sleep_hours,
-            (int) $dailyLog->stress_level,
-            (int) $dailyLog->soreness,
-        );
+        $userPrompt = implode("\n", [
+            $this->profilePromptBuilder->build($user),
+            sprintf(
+                'Current check-in: sleep_hours=%.1f, stress_level=%d, soreness=%d.',
+                (float) $dailyLog->sleep_hours,
+                (int) $dailyLog->stress_level,
+                (int) $dailyLog->soreness,
+            ),
+            'Planned workout today: ' . $plannedWorkout,
+            'Return a short empathetic recommendation with a readiness score, planned vs adjusted text, a structured workout_json, and a nutrition tip.',
+        ]);
 
         return $this->openAiClient->chatJson($systemPrompt, $userPrompt);
     }
@@ -196,13 +205,23 @@ PROMPT;
 
     private function getPlannedWorkoutForToday(User $user): string
     {
+        $customRoutine = $user->onboarding_custom_routine;
+        $dayName = Carbon::now()->englishDayOfWeek;
+
+        if (is_array($customRoutine) && isset($customRoutine[$dayName]) && is_string($customRoutine[$dayName])) {
+            $focus = trim($customRoutine[$dayName]);
+
+            if ($focus !== '') {
+                return $focus;
+            }
+        }
+
         $weeklyPlan = $user->weeklyPlan?->plan_json;
 
         if (!is_array($weeklyPlan)) {
             return 'Moderate full-body strength session';
         }
 
-        $dayName = Carbon::now()->englishDayOfWeek;
         $days = $weeklyPlan['days'] ?? [];
 
         if (!is_array($days)) {

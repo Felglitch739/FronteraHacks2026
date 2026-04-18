@@ -39,7 +39,7 @@ class WeeklyPlanController extends Controller
 
         $planPayload = $request->boolean('use_mock')
             ? $weeklyPlanService->generateMock($goal)
-            : $weeklyPlanService->generateUsingAiOrFallback($goal);
+            : $weeklyPlanService->generateUsingAiOrFallback($user);
 
         $weeklyPlan = $weeklyPlanService->saveForUser($user, $planPayload);
 

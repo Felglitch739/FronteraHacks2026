@@ -15,6 +15,16 @@ return new class extends Migration {
             $table->string('name');
             $table->string('email')->unique();
             $table->enum('goal', ['bulk', 'cut', 'maintain'])->default('maintain');
+            $table->enum('activity_level', ['sedentary', 'light', 'moderate', 'advanced'])->nullable();
+            $table->enum('fitness_goal', ['strength', 'definition', 'recomposition', 'maintenance'])->nullable();
+            $table->enum('workout_mode', ['generate', 'custom'])->nullable();
+            $table->unsignedTinyInteger('age')->nullable();
+            $table->decimal('weight_kg', 6, 2)->nullable();
+            $table->decimal('height_cm', 6, 2)->nullable();
+            $table->json('sports_practiced')->nullable();
+            $table->string('sports_other')->nullable();
+            $table->json('onboarding_custom_routine')->nullable();
+            $table->timestamp('onboarding_completed_at')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

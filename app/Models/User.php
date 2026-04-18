@@ -12,7 +12,22 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
-#[Fillable(['name', 'email', 'goal', 'password'])]
+#[Fillable([
+    'name',
+    'email',
+    'goal',
+    'activity_level',
+    'fitness_goal',
+    'workout_mode',
+    'age',
+    'weight_kg',
+    'height_cm',
+    'sports_practiced',
+    'sports_other',
+    'onboarding_custom_routine',
+    'onboarding_completed_at',
+    'password',
+])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -28,6 +43,12 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'age' => 'integer',
+            'weight_kg' => 'float',
+            'height_cm' => 'float',
+            'sports_practiced' => 'array',
+            'onboarding_custom_routine' => 'array',
+            'onboarding_completed_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];

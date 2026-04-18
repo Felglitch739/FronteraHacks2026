@@ -6,9 +6,16 @@ use App\Http\Controllers\WeeklyPlanController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
+use App\Http\Controllers\OnboardingController;
+
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
+
+Route::middleware(['auth'])->group(function () {
+    Route::inertia('onboarding', 'onboarding')->name('onboarding');
+    Route::post('onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
