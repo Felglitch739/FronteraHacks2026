@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChatMessage;
 use Carbon\Carbon;
 use App\Models\WeeklyPlan;
 use App\Services\Ai\CoachChatService;
@@ -17,6 +18,7 @@ class PlanUpdateController extends Controller
             'proposal' => ['required', 'array'],
             'proposal.type' => ['required', 'in:nutrition,workout'],
             'proposal.data' => ['required', 'array'],
+            'messageId' => ['sometimes', 'string'],
         ]);
 
         /** @var array{type:string,data:array<string,mixed>} $proposal */
@@ -43,6 +45,15 @@ class PlanUpdateController extends Controller
         $weeklyPlan->update([
             'plan_json' => $planPayload,
         ]);
+
+        if (is_string($validated['messageId'] ?? null) && $validated['messageId'] !== '') {
+            ChatMessage::query()
+                ->where('external_id', $validated['messageId'])
+                ->whereHas('conversation', fn($query) => $query->where('user_id', $user->id))
+                ->update([
+                    'proposal_status' => 'accepted',
+                ]);
+        }
 
         return response()->json([
             'message' => 'Plan updated successfully.',

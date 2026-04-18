@@ -174,10 +174,19 @@ export type ChatProposal = {
     data: Record<string, unknown>;
 };
 
+export type ChatMessageViewModel = {
+    id: string;
+    text: string;
+    sender: 'user' | 'ai';
+    proposal?: ChatProposal | null;
+    proposalStatus?: 'pending' | 'accepted' | 'rejected' | null;
+};
+
 export type ChatReplyPayload = {
     text?: string;
     proposal?: ChatProposal | null;
     context?: ChatContextViewModel;
     reply?: string;
     focusAreas?: string[];
+    messages?: ChatMessageViewModel[];
 };

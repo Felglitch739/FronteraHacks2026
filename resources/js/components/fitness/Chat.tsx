@@ -1,9 +1,9 @@
-import { router } from '@inertiajs/react';
 import { Send, Sparkles, User } from 'lucide-react';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import type {
     ChatContextViewModel,
     ChatProposal,
+    ChatMessageViewModel,
     ChatReplyPayload,
 } from '@/types/fitness';
 
@@ -19,6 +19,7 @@ type ChatMessage = {
 
 type ChatProps = {
     context: ChatContextViewModel;
+    initialMessages?: ChatMessageViewModel[];
     replyEndpoint?: string;
 };
 
@@ -59,11 +60,20 @@ function formatProposalValue(value: unknown): string {
 
 export default function Chat({
     context,
+    initialMessages = [],
     replyEndpoint = '/api/coach/chat',
 }: ChatProps) {
-    const [messages, setMessages] = useState<ChatMessage[]>(() => [
-        buildWelcomeMessage(context),
-    ]);
+    const [messages, setMessages] = useState<ChatMessage[]>(() =>
+        initialMessages.length > 0
+            ? initialMessages.map((message) => ({
+                  id: message.id,
+                  text: message.text,
+                  sender: message.sender,
+                  proposal: message.proposal ?? null,
+                  proposalStatus: message.proposalStatus ?? undefined,
+              }))
+            : [buildWelcomeMessage(context)],
+    );
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [chatContext, setChatContext] =
@@ -74,6 +84,20 @@ export default function Chat({
     useEffect(() => {
         setChatContext(context);
     }, [context]);
+
+    useEffect(() => {
+        if (initialMessages.length > 0) {
+            setMessages(
+                initialMessages.map((message) => ({
+                    id: message.id,
+                    text: message.text,
+                    sender: message.sender,
+                    proposal: message.proposal ?? null,
+                    proposalStatus: message.proposalStatus ?? undefined,
+                })),
+            );
+        }
+    }, [initialMessages]);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -232,6 +256,18 @@ export default function Chat({
             setChatContext(payload.context);
         }
 
+        if (Array.isArray(payload.messages) && payload.messages.length > 0) {
+            setMessages(
+                payload.messages.map((message) => ({
+                    id: message.id,
+                    text: message.text,
+                    sender: message.sender,
+                    proposal: message.proposal ?? null,
+                    proposalStatus: message.proposalStatus ?? undefined,
+                })),
+            );
+        }
+
         return {
             replyText,
             proposal: payload.proposal ?? null,
@@ -257,6 +293,7 @@ export default function Chat({
                 },
                 body: JSON.stringify({
                     proposal,
+                    messageId,
                 }),
             });
 
@@ -272,16 +309,12 @@ export default function Chat({
 
             updateMessageProposalState(messageId, 'accepted');
 
-            router.reload({
-                preserveState: true,
-            });
-
             setMessages((previous) => [
                 ...previous,
                 {
                     id: crypto.randomUUID(),
                     sender: 'user',
-                    text: '✅ Cambio aceptado e integrado a mi plan',
+                    text: '✅ Change accepted and integrated into my plan',
                 },
             ]);
         } catch {
@@ -290,7 +323,7 @@ export default function Chat({
                 {
                     id: crypto.randomUUID(),
                     sender: 'ai',
-                    text: 'No pude integrar el cambio en este momento. Tu plan anterior sigue intacto.',
+                    text: 'I could not integrate the change right now. Your previous plan is still intact.',
                 },
             ]);
         }
@@ -304,7 +337,7 @@ export default function Chat({
             {
                 id: crypto.randomUUID(),
                 sender: 'user',
-                text: 'No quiero aplicar ese cambio por ahora, sigo con mi plan actual.',
+                text: 'I do not want to apply that change right now. I will stick with my current plan.',
             },
         ]);
     };
@@ -331,16 +364,7 @@ export default function Chat({
         setIsTyping(true);
 
         try {
-            const { replyText, proposal } = await sendMessage(nextMessages);
-            const aiReply: ChatMessage = {
-                id: crypto.randomUUID(),
-                text: replyText,
-                sender: 'ai',
-                proposal,
-                proposalStatus: proposal ? 'pending' : undefined,
-            };
-
-            setMessages((prev) => [...prev, aiReply]);
+            await sendMessage(nextMessages);
         } catch {
             const fallbackReply: ChatMessage = {
                 id: crypto.randomUUID(),
@@ -507,7 +531,7 @@ export default function Chat({
                                                             }
                                                             className="inline-flex flex-1 items-center justify-center rounded-xl border border-neon-blue/40 bg-neon-blue/15 px-4 py-2 text-sm font-semibold text-neon-blue transition hover:bg-neon-blue/25"
                                                         >
-                                                            Aceptar Cambio
+                                                            Accept Change
                                                         </button>
                                                         <button
                                                             type="button"
@@ -518,7 +542,7 @@ export default function Chat({
                                                             }
                                                             className="inline-flex flex-1 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:bg-white/10"
                                                         >
-                                                            Rechazar
+                                                            Reject
                                                         </button>
                                                     </div>
                                                 ) : null}

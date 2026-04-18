@@ -94,6 +94,7 @@ class CoachChatService
         $today = Carbon::now()->englishDayOfWeek;
         $dailyLog = $user->dailyLogs()->latest()->first();
         $recommendation = $dailyLog?->recommendation;
+        $recentLogs = $user->dailyLogs()->latest()->limit(3)->get();
 
         $weeklyPlan = $user->weeklyPlan?->plan_json;
         $nutritionPlan = $user->nutritionPlan?->nutrition_json;
@@ -133,8 +134,12 @@ class CoachChatService
                 'coachingFocus' => $this->resolveCoachingFocus(
                     $dailyLog ? (int) $dailyLog->stress_level : null,
                     $recommendation?->readiness_score,
+                    $this->hasRecurringRecoveryIssue($recentLogs),
                 ),
-                'recoveryReminder' => $this->resolveRecoveryReminder($dailyLog ? (float) $dailyLog->sleep_hours : null),
+                'recoveryReminder' => $this->resolveRecoveryReminder(
+                    $dailyLog ? (float) $dailyLog->sleep_hours : null,
+                    $this->hasRecurringRecoveryIssue($recentLogs),
+                ),
             ],
         ];
     }
@@ -303,14 +308,14 @@ class CoachChatService
         $stress = $contextSnapshot['today']['stressLevel'] ?? null;
 
         if (is_int($readiness) && $readiness < 50) {
-            return 'Estoy contigo. Hoy vamos con una sesion mas ligera, enfocados en tecnica, movilidad y recuperacion para cuidar tu cuerpo y tu cabeza.';
+            return 'I am with you. Today we will keep the session lighter, focused on technique, mobility, and recovery so we can protect your body and your mind.';
         }
 
         if (is_int($stress) && $stress >= 7) {
-            return 'Vamos paso a paso. Antes de entrenar fuerte, hagamos una pausa corta de respiracion y luego una sesion controlada para bajar carga mental y fisica.';
+            return 'Lets take it step by step. Before pushing hard, pause for a short breathing reset and then do a controlled session to lower mental and physical load.';
         }
 
-        return 'Estoy contigo en esto. Puedes avanzar hoy con una sesion de calidad, buena hidratacion y una rutina breve de descarga mental al terminar.';
+        return 'I am with you on this. You can move forward today with a quality session, good hydration, and a short mental decompression routine at the end.';
     }
 
     private function fallbackFocusAreas(array $contextSnapshot): array
@@ -324,8 +329,12 @@ class CoachChatService
         return $areas;
     }
 
-    private function resolveCoachingFocus(?int $stressLevel, ?int $readinessScore): string
+    private function resolveCoachingFocus(?int $stressLevel, ?int $readinessScore, bool $needsMedicalAttention = false): string
     {
+        if ($needsMedicalAttention) {
+            return 'You have had several rough recovery days in a row. Consider a medical or physio consultation to review what is going on.';
+        }
+
         if (is_int($stressLevel) && $stressLevel >= 7) {
             return 'Lower stress load first, then train with controlled effort.';
         }
@@ -337,12 +346,41 @@ class CoachChatService
         return 'Build consistency with quality reps and calm execution.';
     }
 
-    private function resolveRecoveryReminder(?float $sleepHours): string
+    private function resolveRecoveryReminder(?float $sleepHours, bool $needsMedicalAttention = false): string
     {
+        if ($needsMedicalAttention) {
+            return 'Your recent recovery pattern looks rough; if this keeps happening, book a doctor or physio visit for a proper check.';
+        }
+
         if ($sleepHours !== null && $sleepHours < 7.0) {
             return 'Prioritize sleep extension tonight and reduce unnecessary intensity today.';
         }
 
         return 'Keep hydration, post-workout nutrition, and a short decompression routine today.';
+    }
+
+    private function hasRecurringRecoveryIssue($recentLogs): bool
+    {
+        if (!method_exists($recentLogs, 'count') || $recentLogs->count() < 3) {
+            return false;
+        }
+
+        $badSignals = 0;
+
+        foreach ($recentLogs as $log) {
+            if (!is_object($log)) {
+                continue;
+            }
+
+            $sleepHours = is_numeric($log->sleep_hours ?? null) ? (float) $log->sleep_hours : null;
+            $stressLevel = is_numeric($log->stress_level ?? null) ? (int) $log->stress_level : null;
+            $soreness = is_numeric($log->soreness ?? null) ? (int) $log->soreness : null;
+
+            if (($sleepHours !== null && $sleepHours < 6.5) || ($stressLevel !== null && $stressLevel >= 7) || ($soreness !== null && $soreness >= 7)) {
+                $badSignals++;
+            }
+        }
+
+        return $badSignals >= 3;
     }
 }
