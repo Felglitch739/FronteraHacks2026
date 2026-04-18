@@ -514,16 +514,14 @@ export default function OnboardingPage({ initialData }: OnboardingPageProps) {
         <>
             <Head title="Onboarding" />
 
-            <div className="min-h-screen bg-background text-foreground">
+            <div className="relative min-h-screen overflow-x-hidden text-foreground">
                 {/* Background gradients */}
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--color-neon-pink),transparent_30%),radial-gradient(circle_at_top_right,var(--color-neon-blue),transparent_26%),linear-gradient(180deg,var(--color-background)_0%,transparent_45%,var(--color-background)_100%)] opacity-20" />
-                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(var(--color-foreground)_1px,transparent_1px)] bg-size-[56px_56px] opacity-[0.03]" />
 
                 {/* Main content */}
-                <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-1 py-4 sm:px-3 sm:py-6">
-                    <div className="w-full max-w-none md:max-w-3xl">
+                <div className="relative z-10 flex min-h-screen w-full flex-col items-center justify-center px-3 py-4 sm:px-4 sm:py-6">
+                    <div className="w-full">
                         {/* Header */}
-                        <div className="mb-6 text-center">
+                        <div className="glass-panel mb-4 rounded-2xl border border-glass-border bg-glass-panel px-4 py-4 text-center shadow-[0_0_30px_var(--color-neon-blue)/10] backdrop-blur-xl sm:mb-6 sm:px-6">
                             <div className="mb-4 flex items-center justify-center gap-2">
                                 <Zap className="h-8 w-8 text-neon-pink" />
                                 <h1 className="font-['Orbitron',sans-serif] text-3xl font-bold text-foreground">
@@ -536,7 +534,7 @@ export default function OnboardingPage({ initialData }: OnboardingPageProps) {
                         </div>
 
                         {/* Progress bar */}
-                        <div className="mb-6">
+                        <div className="mb-5 sm:mb-6">
                             <div className="mb-2 flex items-center justify-between text-sm">
                                 <span className="text-muted-foreground">
                                     Step {currentStep} of 5
@@ -554,7 +552,7 @@ export default function OnboardingPage({ initialData }: OnboardingPageProps) {
                         </div>
 
                         {/* Content */}
-                        <div className="glass-panel rounded-2xl border border-glass-border bg-glass-panel p-3 backdrop-blur-xl sm:p-5 md:p-7">
+                        <div className="glass-panel rounded-2xl border border-glass-border bg-glass-panel p-3 shadow-[0_0_36px_var(--color-neon-pink)/8] backdrop-blur-xl sm:p-5 md:p-7">
                             {/* Step 1: Lifestyle */}
                             {currentStep === 1 && (
                                 <div className="animate-in space-y-6 duration-300 fade-in">
