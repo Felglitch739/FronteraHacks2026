@@ -130,30 +130,54 @@ self.addEventListener('push', (event) => {
 
     if (event.data) {
         try {
-            const parsed = event.data.json();
-            payload = {
-                title: parsed.title || payload.title,
-                body: parsed.body || payload.body,
-                data: {
-                    ...payload.data,
-                    ...(parsed.data || {}),
-                },
-            };
-        } catch (_) {
-            const textPayload = event.data.text() || '';
+            // Try normal JSON parse
+            let parsed = event.data.json();
 
-            try {
-                const parsedText = JSON.parse(textPayload);
+            // 🔥 Handle double-encoded JSON
+            if (typeof parsed === 'string') {
+                try {
+                    parsed = JSON.parse(parsed);
+                } catch (e) {
+                    console.warn('Double parse failed, using raw string');
+                    payload.body = parsed;
+                }
+            }
+
+            if (typeof parsed === 'object') {
                 payload = {
-                    title: parsedText.title || payload.title,
-                    body: parsedText.body || payload.body,
+                    title: parsed.title || payload.title,
+                    body: parsed.body || payload.body,
                     data: {
                         ...payload.data,
-                        ...(parsedText.data || {}),
+                        ...(parsed.data || {}),
                     },
                 };
-            } catch (__) {
-                payload.body = textPayload || payload.body;
+            }
+        } catch (err) {
+            // Fallback: treat as text
+            try {
+                const textPayload = event.data.text();
+                console.warn('Fallback to text:', textPayload);
+
+                let parsedText;
+
+                try {
+                    parsedText = JSON.parse(textPayload);
+
+                    payload = {
+                        title: parsedText.title || payload.title,
+                        body: parsedText.body || payload.body,
+                        data: {
+                            ...payload.data,
+                            ...(parsedText.data || {}),
+                        },
+                    };
+                } catch (e) {
+                    // Raw string (not JSON at all)
+                    payload.body = textPayload || payload.body;
+                }
+            } catch (e) {
+                console.error('Failed to parse push payload completely');
             }
         }
     }
