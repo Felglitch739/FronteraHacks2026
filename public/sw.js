@@ -1,5 +1,5 @@
-const CACHE_NAME = 'aurafit-v2';
-const ASSETS_TO_CACHE = ['/', '/index.php', '/offline.html'];
+const CACHE_NAME = 'aurafit-v3';
+const ASSETS_TO_CACHE = ['/offline.html'];
 
 // Install event - cache assets
 self.addEventListener('install', (event) => {
@@ -43,7 +43,7 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - prefer network, fallback to cache only if offline
 self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
@@ -61,92 +61,58 @@ self.addEventListener('fetch', (event) => {
     // Network first for API calls
     if (url.pathname.startsWith('/api/')) {
         event.respondWith(
-            fetch(request)
-                .then((response) => {
-                    // Clone the response
-                    const clonedResponse = response.clone();
-                    // Store in cache for offline fallback
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(request, clonedResponse);
-                    });
-                    return response;
-                })
-                .catch(() => {
-                    // Return cached version or offline response
-                    return caches.match(request).then((cachedResponse) => {
-                        return (
-                            cachedResponse ||
-                            new Response('Offline', { status: 503 })
-                        );
-                    });
-                }),
+            fetch(request).catch(() => {
+                // Return cached version or offline response
+                return caches.match(request).then((cachedResponse) => {
+                    return (
+                        cachedResponse ||
+                        new Response('Offline', { status: 503 })
+                    );
+                });
+            }),
         );
         return;
     }
 
-    // Cache first for static assets
+    // Network first for static assets so CSS/JS updates immediately
     if (
         url.pathname.match(
             /\.(js|css|png|jpg|jpeg|svg|gif|webp|woff|woff2|ttf|eot)$/i,
         )
     ) {
         event.respondWith(
-            caches.match(request).then((cachedResponse) => {
-                return (
-                    cachedResponse ||
-                    fetch(request)
-                        .then((response) => {
-                            // Clone and cache the response
-                            const clonedResponse = response.clone();
-                            caches.open(CACHE_NAME).then((cache) => {
-                                cache.put(request, clonedResponse);
-                            });
-                            return response;
-                        })
-                        .catch(() => {
-                            // Return a fallback image for failed asset requests
-                            if (request.destination === 'image') {
-                                return new Response(
-                                    '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="#ddd" width="100" height="100"/></svg>',
-                                    {
-                                        headers: {
-                                            'Content-Type': 'image/svg+xml',
-                                        },
-                                    },
-                                );
-                            }
-                            return null;
-                        })
-                );
+            fetch(request).catch(() => {
+                return caches.match(request).then((cachedResponse) => {
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
+
+                    if (request.destination === 'image') {
+                        return new Response(
+                            '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="#ddd" width="100" height="100"/></svg>',
+                            {
+                                headers: {
+                                    'Content-Type': 'image/svg+xml',
+                                },
+                            },
+                        );
+                    }
+
+                    return new Response('Offline', { status: 503 });
+                });
             }),
         );
         return;
     }
 
-    // Stale-while-revalidate for HTML pages
+    // Network first for pages so the UI always reflects the newest build
     event.respondWith(
-        caches.match(request).then((cachedResponse) => {
-            const fetchPromise = fetch(request)
-                .then((response) => {
-                    // Only cache successful responses
-                    if (response.status === 200) {
-                        const clonedResponse = response.clone();
-                        caches.open(CACHE_NAME).then((cache) => {
-                            cache.put(request, clonedResponse);
-                        });
-                    }
-                    return response;
-                })
-                .catch(() => {
-                    // Return cached version or offline page
-                    return (
-                        cachedResponse ||
-                        caches.match('/') ||
-                        new Response('Offline', { status: 503 })
-                    );
-                });
-
-            return cachedResponse || fetchPromise;
+        fetch(request).catch(() => {
+            return caches.match('/offline.html').then((cachedResponse) => {
+                return (
+                    cachedResponse || new Response('Offline', { status: 503 })
+                );
+            });
         }),
     );
 });
