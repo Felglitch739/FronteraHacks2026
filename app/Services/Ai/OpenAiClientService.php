@@ -66,6 +66,7 @@ class OpenAiClientService
                             'type' => 'image_url',
                             'image_url' => [
                                 'url' => $imageDataUrl,
+                                'detail' => 'low',
                             ],
                         ],
                     ],

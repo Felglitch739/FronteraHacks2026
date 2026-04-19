@@ -53,6 +53,67 @@ export default function MacrosPage({
 
     const saveForm = useForm({});
 
+    const compressImage = async (file: File): Promise<File> => {
+        const MAX_DIMENSION = 1280;
+        const QUALITY = 0.72;
+
+        if (!file.type.startsWith('image/')) {
+            return file;
+        }
+
+        const originalUrl = URL.createObjectURL(file);
+
+        try {
+            const image = await new Promise<HTMLImageElement>(
+                (resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.onerror = () =>
+                        reject(new Error('Could not load image'));
+                    img.src = originalUrl;
+                },
+            );
+
+            const ratio = Math.min(
+                1,
+                MAX_DIMENSION / Math.max(image.width, image.height),
+            );
+            const width = Math.max(1, Math.round(image.width * ratio));
+            const height = Math.max(1, Math.round(image.height * ratio));
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext('2d');
+
+            if (!ctx) {
+                return file;
+            }
+
+            ctx.drawImage(image, 0, 0, width, height);
+
+            const blob = await new Promise<Blob | null>((resolve) => {
+                canvas.toBlob(resolve, 'image/jpeg', QUALITY);
+            });
+
+            if (!blob) {
+                return file;
+            }
+
+            if (blob.size >= file.size) {
+                return file;
+            }
+
+            return new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+            });
+        } finally {
+            URL.revokeObjectURL(originalUrl);
+        }
+    };
+
     if (analyzeForm.processing) {
         return (
             <>
@@ -147,12 +208,37 @@ export default function MacrosPage({
                                     type="file"
                                     accept="image/*"
                                     className="hidden"
-                                    onChange={(event) =>
-                                        analyzeForm.setData(
-                                            'photo',
-                                            event.target.files?.[0] ?? null,
-                                        )
-                                    }
+                                    onChange={async (event) => {
+                                        const file =
+                                            event.target.files?.[0] ?? null;
+
+                                        if (!file) {
+                                            analyzeForm.setData('photo', null);
+                                            return;
+                                        }
+
+                                        try {
+                                            const compressed =
+                                                await compressImage(file);
+                                            analyzeForm.setData(
+                                                'photo',
+                                                compressed,
+                                            );
+
+                                            if (compressed.size < file.size) {
+                                                const savedKb = Math.round(
+                                                    (file.size -
+                                                        compressed.size) /
+                                                        1024,
+                                                );
+                                                toast.success(
+                                                    `Image optimized (${savedKb} KB saved).`,
+                                                );
+                                            }
+                                        } catch {
+                                            analyzeForm.setData('photo', file);
+                                        }
+                                    }}
                                 />
                             </label>
                         </div>

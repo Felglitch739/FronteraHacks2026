@@ -7,6 +7,9 @@ use RuntimeException;
 
 class FoodPhotoAnalyzerService
 {
+    private const MAX_IMAGE_DIMENSION = 1024;
+    private const JPEG_QUALITY = 68;
+
     public function __construct(
         private readonly OpenAiClientService $openAiClient,
         private readonly \App\Services\Ai\PromptTemplateService $promptTemplateService,
@@ -19,16 +22,10 @@ class FoodPhotoAnalyzerService
             throw new RuntimeException('Food image file does not exist.');
         }
 
-        $binary = file_get_contents($absoluteImagePath);
+        [$binary, $mime] = $this->optimizedImagePayload($absoluteImagePath);
 
         if ($binary === false) {
             throw new RuntimeException('Could not read food image file.');
-        }
-
-        $mime = mime_content_type($absoluteImagePath);
-
-        if (!is_string($mime) || $mime === '') {
-            $mime = 'image/jpeg';
         }
 
         $dataUrl = sprintf('data:%s;base64,%s', $mime, base64_encode($binary));
@@ -42,6 +39,86 @@ class FoodPhotoAnalyzerService
         $payload = $this->openAiClient->chatJsonWithImage($systemPrompt, $textPrompt, $dataUrl);
 
         return $this->normalize($payload, $mealLabel);
+    }
+
+    /**
+     * @return array{0: string|false, 1: string}
+     */
+    private function optimizedImagePayload(string $absoluteImagePath): array
+    {
+        $binary = file_get_contents($absoluteImagePath);
+        $mime = mime_content_type($absoluteImagePath);
+
+        if (!is_string($mime) || $mime === '') {
+            $mime = 'image/jpeg';
+        }
+
+        if (!extension_loaded('gd')) {
+            return [$binary, $mime];
+        }
+
+        $imageInfo = @getimagesize($absoluteImagePath);
+
+        if (!is_array($imageInfo) || !isset($imageInfo[0], $imageInfo[1])) {
+            return [$binary, $mime];
+        }
+
+        [$width, $height] = $imageInfo;
+        $maxDimension = max($width, $height);
+
+        if ($maxDimension <= self::MAX_IMAGE_DIMENSION && $mime === 'image/jpeg') {
+            return [$binary, $mime];
+        }
+
+        $source = match ($mime) {
+            'image/jpeg', 'image/jpg' => @imagecreatefromjpeg($absoluteImagePath),
+            'image/png' => @imagecreatefrompng($absoluteImagePath),
+            'image/webp' => function_exists('imagecreatefromwebp')
+            ? @imagecreatefromwebp($absoluteImagePath)
+            : false,
+            default => false,
+        };
+
+        if ($source === false) {
+            return [$binary, $mime];
+        }
+
+        $scale = min(1, self::MAX_IMAGE_DIMENSION / $maxDimension);
+        $targetWidth = max(1, (int) round($width * $scale));
+        $targetHeight = max(1, (int) round($height * $scale));
+
+        $resized = imagecreatetruecolor($targetWidth, $targetHeight);
+
+        if ($resized === false) {
+            imagedestroy($source);
+            return [$binary, $mime];
+        }
+
+        imagecopyresampled(
+            $resized,
+            $source,
+            0,
+            0,
+            0,
+            0,
+            $targetWidth,
+            $targetHeight,
+            $width,
+            $height,
+        );
+
+        ob_start();
+        imagejpeg($resized, null, self::JPEG_QUALITY);
+        $optimizedBinary = ob_get_clean();
+
+        imagedestroy($resized);
+        imagedestroy($source);
+
+        if (!is_string($optimizedBinary) || $optimizedBinary === '') {
+            return [$binary, $mime];
+        }
+
+        return [$optimizedBinary, 'image/jpeg'];
     }
 
     private function normalize(array $payload, ?string $mealLabel): array
