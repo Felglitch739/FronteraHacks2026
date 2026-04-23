@@ -18,13 +18,15 @@ import type { DashboardViewModel } from '@/types/fitness';
 
 export type DashboardViewProps = DashboardViewModel;
 
+type Props = DashboardViewProps;
+
 export default function DashboardView({
     weeklyPlan,
     recommendation,
     nutritionPlan,
     macroSummary,
     currentDayLabel,
-}: DashboardViewProps) {
+}: Props) {
     const weeklyPlanForm = useForm({
         goal: weeklyPlan?.goal ?? 'maintain',
     });
@@ -606,6 +608,7 @@ export default function DashboardView({
                             weekly plan" button to create one.
                         </div>
                     )}
+
                 </section>
             </div>
     );

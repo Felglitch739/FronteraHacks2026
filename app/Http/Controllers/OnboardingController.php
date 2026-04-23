@@ -65,7 +65,6 @@ class OnboardingController extends Controller
     public function store(
         Request $request,
         WeeklyPlanService $weeklyPlanService,
-        NutritionPlanService $nutritionPlanService,
     ): RedirectResponse {
         $validated = $request->validate([
             'activity_level' => ['required', 'in:sedentary,light,moderate,advanced'],
@@ -131,7 +130,7 @@ class OnboardingController extends Controller
         ]);
 
         try {
-            DB::transaction(function () use ($user, $validated, $weightKg, $heightCm, $sportsData, $sportsSchedule, $sportsIntensity, $weeklyPlanService, $nutritionPlanService, ): void {
+            DB::transaction(function () use ($user, $validated, $weightKg, $heightCm, $sportsData, $sportsSchedule, $sportsIntensity, $weeklyPlanService, ): void {
                 $customRoutine = $validated['workout_mode'] === 'custom'
                     ? $this->normalizeCustomRoutine($validated['custom_routine'] ?? [])
                     : null;
@@ -173,18 +172,6 @@ class OnboardingController extends Controller
                 Log::debug('Onboarding weekly plan generated and saved.', [
                     'user_id' => $user->id,
                     'days_count' => is_array($weeklyPlan['days'] ?? null) ? count($weeklyPlan['days']) : null,
-                ]);
-
-                Log::debug('Onboarding generating nutrition plan.', [
-                    'user_id' => $user->id,
-                ]);
-
-                $nutritionPlan = $nutritionPlanService->generateUsingAiOrFallback($user);
-                $nutritionPlanService->saveForUser($user, $nutritionPlan);
-
-                Log::debug('Onboarding nutrition plan generated and saved.', [
-                    'user_id' => $user->id,
-                    'days_count' => is_array($nutritionPlan['days'] ?? null) ? count($nutritionPlan['days']) : null,
                 ]);
             });
         } catch (Throwable $exception) {

@@ -42,4 +42,10 @@ return [
         'timeout' => env('OPENAI_TIMEOUT', 30),
     ],
 
+    'rapidapi' => [
+        'key' => env('RAPIDAPI_KEY'),
+        'exercise_host' => env('RAPIDAPI_EXERCISE_HOST', 'edb-with-videos-and-images-by-ascendapi.p.rapidapi.com'),
+        'exercise_base_url' => env('RAPIDAPI_EXERCISE_BASE_URL', 'https://edb-with-videos-and-images-by-ascendapi.p.rapidapi.com'),
+    ],
+
 ];
