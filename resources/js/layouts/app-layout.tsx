@@ -4,6 +4,7 @@ import {
     BarChart3,
     Bell,
     MessageCircle,
+    Settings,
     PieChart,
     LayoutDashboard,
     LogOut,
@@ -12,7 +13,11 @@ import {
     Zap,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import PlanGenerationBanner, {
+    type PlanGenerationBannerState,
+} from '@/components/fitness/shared/PlanGenerationBanner';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { edit } from '@/routes/profile';
 import type { BreadcrumbItem } from '@/types';
 
 export default function AppLayout({
@@ -24,9 +29,27 @@ export default function AppLayout({
 }) {
     const { isCurrentUrl } = useCurrentUrl();
     const { auth } = usePage<{
-        auth: { user?: { is_admin?: boolean } | null };
+        auth: {
+            user?: {
+                is_admin?: boolean;
+                generation_status?: PlanGenerationBannerState['status'];
+                generation_kind?: string | null;
+                generation_message?: string | null;
+                generation_started_at?: string | null;
+                generation_failed_at?: string | null;
+            } | null;
+        };
     }>().props;
     const isAdmin = Boolean(auth?.user?.is_admin);
+    const generationState: PlanGenerationBannerState | null = auth?.user
+        ? {
+              status: auth.user.generation_status ?? 'idle',
+              kind: auth.user.generation_kind ?? null,
+              message: auth.user.generation_message ?? null,
+              startedAt: auth.user.generation_started_at ?? null,
+              failedAt: auth.user.generation_failed_at ?? null,
+          }
+        : null;
     const [notificationsEnabled, setNotificationsEnabled] =
         useState<boolean>(false);
     const [notificationsLoading, setNotificationsLoading] =
@@ -294,6 +317,14 @@ export default function AppLayout({
                         </div>
 
                         <div className="flex items-center gap-2">
+                            <Link
+                                href={edit()}
+                                className="inline-flex items-center gap-2 rounded-lg border border-glass-border bg-background/40 px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:border-neon-blue hover:text-neon-blue"
+                            >
+                                <Settings className="h-4 w-4" />
+                                Settings
+                            </Link>
+
                             <button
                                 type="button"
                                 onClick={handleEnableNotifications}
@@ -320,6 +351,8 @@ export default function AppLayout({
                             </button>
                         </div>
                     </header>
+
+                    <PlanGenerationBanner state={generationState} />
 
                     <main className="flex-1">{children}</main>
                 </div>
