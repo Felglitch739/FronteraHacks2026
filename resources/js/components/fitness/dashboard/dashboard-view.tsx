@@ -18,6 +18,8 @@ import type { DashboardViewModel } from '@/types/fitness';
 
 export type DashboardViewProps = DashboardViewModel;
 
+type Props = DashboardViewProps;
+
 export default function DashboardView({
     weeklyPlan,
     recommendation,

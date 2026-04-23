@@ -1,0 +1,23 @@
+# --- PARA AURAFIT (PHP, Laravel, MySQL) ---
+amiralizadeh9480.laravel-extra-intellisense
+amirmarmul.laravel-blade-vscode
+onecentlin.laravel-extension-pack
+ryannaddy.laravel-artisan
+cweijan.vscode-mysql-client2
+xdebug.php-debug
+
+# --- PARA TUS PROYECTOS DE C++, PYTHON Y LINUX ---
+ms-vscode.cpptools
+ms-python.python
+ms-python.vscode-pylance
+ms-python.debugpy
+ms-vscode-remote.remote-ssh
+ms-vscode-remote.remote-wsl
+
+# --- FRONTEND Y UTILIDADES ---
+bradlc.vscode-tailwindcss
+esbenp.prettier-vscode
+usernamehw.errorlens
+formulahendry.auto-rename-tag
+eamodio.gitlens
+christian-kohler.path-intellisense
